@@ -1,0 +1,40 @@
+version: '3.3'
+
+volumes:
+  db:
+  storage:
+
+
+networks:
+  inventory-app-network:
+          name: 'inventory-app-network'
+
+services:
+  database:
+    image: postgres:14.2-alpine
+    container_name: inventory-app-database
+    volumes:
+      - db:/var/lib/postgresql/data
+    env_file:
+      - .env
+    ports:
+      - "3009:5432"   
+    networks:
+      - inventory-app-network
+    restart: unless-stopped
+  inventory-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: inventory-app
+    container_name: inventory-app
+    volumes:
+      - .:/home/node/app
+      - storage:/home/node/storage
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    networks:
+      - inventory-app-network
+    restart: unless-stopped  

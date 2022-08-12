@@ -1,0 +1,45 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  name      String   @db.VarChar(255)
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+  id        String   @unique @default(uuid()) @db.Uuid
+
+  inventorys Inventory[]
+
+  @@map("users")
+}
+
+model Inventory {
+  name           String          @db.VarChar(255)
+  createdAt      DateTime        @default(now())
+  id             String          @unique @default(uuid()) @db.Uuid
+  inventoryItems InventoryItem[]
+
+  userId String @db.Uuid
+  User   User?  @relation(fields: [userId], references: [id])
+
+  @@map("inventories")
+}
+
+model InventoryItem {
+  name      String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+  id        String   @unique @default(uuid()) @db.Uuid
+  quantity  Int      @default(0)
+
+  Inventory   Inventory? @relation(fields: [inventoryId], references: [id])
+  inventoryId String?    @db.Uuid
+
+  @@map("inventoryItems")
+}
